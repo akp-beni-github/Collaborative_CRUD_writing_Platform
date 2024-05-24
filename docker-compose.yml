@@ -1,0 +1,42 @@
+version: "4"  # Use the latest version supported by your Docker Compose installation
+
+
+services:
+  auth-server:
+    build: ./BACKEND-containers/authServer
+    ports:
+      - "4000:4000"
+    networks:
+      - backend
+
+  crudapi-server:
+    build: ./BACKEND-containers/crudapiServer
+    ports:
+      - "4001:4001"
+    networks:
+      - backend
+
+  root-server:
+    build: ./BACKEND-containers/rootServer
+    ports:
+      - "3001:3001"
+    networks:
+      - backend
+
+  mariadb:
+    image: mariadb:latest
+    volumes:
+      - ./DATABASE#1/mariadb_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: benny123  # Root user's password
+      MYSQL_DATABASE: test_db  # Default database to be created
+    ports:
+      - "3306:3306"
+    networks:
+      - backend
+    
+
+networks:
+  backend:
+    driver: bridge
+ 
