@@ -10,6 +10,15 @@ Content-Type: application/json
 }
 
 
+#### 1 signup   RootAPI server (http://localhost:3000/)
+POST http://localhost:3001/signup
+Content-Type: application/json
+
+{
+    "username": "user1",
+    "password": "password1"
+}
+
 #### 1 login   RootAPI server (http://localhost:3000/)
 POST http://localhost:3001/login-check
 Content-Type: application/json

@@ -1,42 +1,41 @@
-version: "4"  # Use the latest version supported by your Docker Compose installation
-
+version: '3.8'
 
 services:
+
   auth-server:
-    build: ./BACKEND-containers/authServer
+    build: ./BACKEND-dockers/authServer
+    restart: always
+    container_name: authserver_container
     ports:
       - "4000:4000"
-    networks:
-      - backend
-
-  crudapi-server:
-    build: ./BACKEND-containers/crudapiServer
-    ports:
-      - "4001:4001"
-    networks:
-      - backend
 
   root-server:
-    build: ./BACKEND-containers/rootServer
+    build: ./BACKEND-dockers/rootServer
+    restart: always
+    container_name: rootserver_container
     ports:
       - "3001:3001"
-    networks:
-      - backend
 
-  mariadb:
-    image: mariadb:latest
-    volumes:
-      - ./DATABASE#1/mariadb_data:/var/lib/mysql
+  crudapi-server:
+    build: ./BACKEND-dockers/crudapiServer
+    restart: always
+    container_name: crudapiserver_container
+    ports:
+      - "4001:4001"
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    container_name: mysql_container
     environment:
-      MYSQL_ROOT_PASSWORD: benny123  # Root user's password
-      MYSQL_DATABASE: test_db  # Default database to be created
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
-    networks:
-      - backend
-    
 
-networks:
-  backend:
-    driver: bridge
- 
+volumes:
+  mysql_data:
