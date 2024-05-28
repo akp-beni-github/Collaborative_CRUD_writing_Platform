@@ -2,6 +2,13 @@ version: '3.8'
 
 services:
 
+  frontend:
+    build: ./FRONTEND/my-app
+    restart: always
+    container_name: frontend_container
+    ports:
+      - "3000:3000"
+
   auth-server:
     build: ./BACKEND-dockers/authServer
     restart: always

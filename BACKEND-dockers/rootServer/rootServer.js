@@ -4,8 +4,17 @@ const argon2 = require('argon2');
 const mysql = require('mysql2/promise');
 const axios = require('axios');
 const app = express();
+const cors = require('cors');
 
 app.use(express.json());
+    
+app.use(    
+    
+    cors({ origin: "*",
+
+    })
+
+);
 
 // Database configuration
 const dbConfig = {
@@ -44,7 +53,7 @@ app.post('/signup', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
-
+/*
 // Login-check endpoint (redirects to Auth Server login if valid)
 app.post('/login-check', async (req, res) => {
     const { username, password } = req.body;
@@ -76,7 +85,7 @@ app.post('/login-check', async (req, res) => {
         console.error('Error processing login:', error);
         res.status(500).send('Internal server error');
     }
-});
+});*/
 
 // Start the server
 app.listen(3001, () => {

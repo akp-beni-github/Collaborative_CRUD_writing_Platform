@@ -1,12 +1,12 @@
 
-
-#### 1.2 if valid user Authserver 
+#### (1) if valid user Authserver(login-check will link to this automously) 
 #req both username and password but use only username
 POST http://localhost:4000/login
 Content-Type: application/json
 
 {
-    "username": "user1"
+    "username": "user1@gmail.com",
+    "password": "password1"
 }
 
 
@@ -15,21 +15,23 @@ POST http://localhost:3001/signup
 Content-Type: application/json
 
 {
-    "username": "user1",
+    "username": "user1@gmail.com",
     "password": "password1"
 }
 
 #### 1 login   RootAPI server (http://localhost:3000/)
-POST http://localhost:3001/login-check
-Content-Type: application/json
-
-{
-    "username": "user1",
-    "password": "password1"
-}
+########}
 
 ##### 2 crud   CRUD Server (http://localhost:3000/collab-writing-platform)
 
 GET http://localhost:4001/protectedpath
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiQkVOMiIsImlhdCI6MTcxNjQ1NDY2MX0.XbSxWmHdOPvmbx7h91shJXTy6TmL84wC5NzXPr2ju6s
 
+### 3 logout delete refresh tokens
+
+DELETE http://localhost:4000/logout
+Content-Type: application/json
+
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidXNlcjFAZ21haWwuY29tIiwiaWF0IjoxNzE2NjMxMDM0fQ.4khxfuMyhP_UDGxRvZMZRsIFpOKgW0VeqeyqwVFCxPQ" 
+}

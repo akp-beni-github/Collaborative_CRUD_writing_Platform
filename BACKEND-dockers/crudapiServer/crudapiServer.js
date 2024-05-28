@@ -1,4 +1,4 @@
-// secondpageapi.js
+// loggedin protected api for crudpage
 require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // Middleware to authenticate token
-function authenticateToken(req, res, next) {
+function authenticateToken(req, res, next) {  //recieve token as a header from frontend browser 
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);

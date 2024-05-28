@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+//import Cookies from 'js-cookie'; // Import js-cookie
 
-const Auth = () => { //[ data, fucntion ]= usestate(initial value) automatically rendering using STATE
-    const [formData, setFormData] = useState({ email: '', password: '' }); //string  
-    const [loading, setLoading] = useState(false); //boolean
-    const [error, setError] = useState(null); //null or string
-    const navigate = useNavigate(); //router
+const Auth = () => {
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,14 +18,16 @@ const Auth = () => { //[ data, fucntion ]= usestate(initial value) automatically
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:3001/signup', formData); //post and wait for apiendpoint response
-            if (response.data.success) {
+            const response = await axios.post('http://localhost:3001/signup', formData);
+            console.log('Signup response:', response.data);
+            if (response.data) {
                 console.log('User signed up successfully');
-                navigate('/secondpage');
+                navigate('/collab-writing-platform');
             } else {
-                setError(response.data.message || 'Signup failed');
+                setError(response.data || 'Signup failed');
             }
         } catch (error) {
+            console.error('Signup error:', error);
             setError('Error occurred during signup');
         } finally {
             setLoading(false);
@@ -37,14 +39,22 @@ const Auth = () => { //[ data, fucntion ]= usestate(initial value) automatically
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:3001/login-check', formData);
-            if (response.data.success) {
+            const response = await axios.post('http://localhost:4000/login', formData);
+            
+            console.log('Login response:', response.data);
+            if (response.data) {
                 console.log('User logged in successfully');
-                navigate('/secondpage');
+
+                // Store tokens in cookies
+                //Cookies.set('accessToken', response.data.accessToken, { secure: true, sameSite: 'None' });
+                //Cookies.set('refreshToken', response.data.refreshToken, { secure: true, sameSite: 'None' });
+
+                navigate('/collab-writing-platform');
             } else {
-                setError(response.data.message || 'Login failed');
+                setError(response.data || 'Login failed');
             }
         } catch (error) {
+            console.error('Login error:', error);
             setError('Error occurred during login');
         } finally {
             setLoading(false);
@@ -63,8 +73,8 @@ const Auth = () => { //[ data, fucntion ]= usestate(initial value) automatically
                     <form onSubmit={handleSignup}>
                         <input
                             type="email"
-                            name="email"
-                            value={formData.email}
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             placeholder="Email"
                             required
@@ -83,8 +93,8 @@ const Auth = () => { //[ data, fucntion ]= usestate(initial value) automatically
                     <form onSubmit={handleLogin}>
                         <input
                             type="email"
-                            name="email"
-                            value={formData.email}
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             placeholder="Email"
                             required
