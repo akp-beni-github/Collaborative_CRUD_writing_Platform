@@ -60,14 +60,16 @@ app.post('/login', async (req, res) => {
         await storeRefreshToken(refreshToken);
 
         // 1 Send tokens in response store in cookie in the frontend
-        res.json({ accessToken, refreshToken });
+        // res.json({ accessToken, refreshToken });
 
         // 2 or send in cookie
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: true, sameSite: 'Strict' });
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'Strict' });
-        res.json({ message: 'Logged in successfully' });
+        res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, sameSite: 'None' });
+        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'None' });
 
-        console.log('try sending tokens');
+
+        //res.json({ message: 'Logged in successfully' });
+        res.json( { message: 'Logged in successfully -backend' });
+        console.log('try sending tokens as cookie');
 
 
 

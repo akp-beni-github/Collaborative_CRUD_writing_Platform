@@ -9,6 +9,7 @@ const SecondPage = () => {
     const [error, setError] = useState(null); // null or string for error messages
     const navigate = useNavigate(); 
 
+    /*
     // ??????Function to check token expiration on the frontend
     function isTokenExpired(token) {
     const decoded = JSON.parse(atob(token.split('.')[1]));
@@ -17,8 +18,8 @@ const SecondPage = () => {
     const browsers_accessToken = Cookies.get('accessToken');
     if (isTokenExpired(browsers_accessToken)) {
     // Handle token refresh or redirect to login
-    }
-  
+    } ทีละเรื่อง logout ก่อน แล้วค่อย accesstoken expire
+    */
 
 
     const handleLogout = async (e) => {

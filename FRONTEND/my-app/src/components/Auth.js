@@ -43,7 +43,7 @@ const Auth = () => {
             
             console.log('Login response:', response.data);
             if (response.data) {
-                console.log('User logged in successfully');
+                console.log('User logged in successfully -frontend');
 
                 // Store tokens in cookies
                 //Cookies.set('accessToken', response.data.accessToken, { secure: true, sameSite: 'None' });
