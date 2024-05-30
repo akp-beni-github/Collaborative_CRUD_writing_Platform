@@ -27,7 +27,10 @@ const SecondPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const browsers_refreshToken = Cookies.get('refreshToken');
+            let browsers_refreshToken = Cookies.get('refreshToken');
+            if (!browsers_refreshToken) {
+                throw new Error('Refresh token not found');
+            }
             const response = await axios.delete('http://localhost:4000/logout',  {
                 data: { token: browsers_refreshToken } 
             });
@@ -35,7 +38,7 @@ const SecondPage = () => {
             console.log('Login response:', response.data);
             if (response.data) {
                 console.log('refreshToken in database is removed');//remove from database
-
+    
                 Cookies.remove('refreshToken'); // remove browser cookie
                 console.log('User logged out successfully');
                 navigate('/');
@@ -48,6 +51,7 @@ const SecondPage = () => {
             setLoading(false);
         }
     };
+    
 
     //send 
     

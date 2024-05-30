@@ -18,7 +18,7 @@ const Auth = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:3001/signup', formData);
+            const response = await axios.post('http://localhost:3001/signup', formData); 
             console.log('Signup response:', response.data);
             if (response.data) {
                 console.log('User signed up successfully');
@@ -39,7 +39,9 @@ const Auth = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.post('http://localhost:4000/login', formData);
+            const response = await axios.post('http://localhost:4000/login', formData, {
+                withCredentials: true  // Include credentials with the request
+            });
             
             console.log('Login response:', response.data);
             if (response.data) {

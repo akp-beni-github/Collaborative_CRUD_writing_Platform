@@ -28,7 +28,7 @@ const dbConfig = {
 const pool = mysql.createPool(dbConfig);
 
 // User signup endpoint
-app.post('/signup', async (req, res) => {
+app.post('/signup', async (req, res) => { // แก้ แล้วทำเหมือน login ย้ายไปlogin
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).send('Username and password are required');

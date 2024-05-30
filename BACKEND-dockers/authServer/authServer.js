@@ -7,15 +7,25 @@ const cors = require('cors');
 const argon2 = require('argon2');
 
 
+const ONE_MINUTE = 60000;
+const FIFTEEN_MINUTES = ONE_MINUTE * 15;
+
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-app.use(    
-    
-    cors({ origin: "*",
+// CORS configuration
+app.use(cors({
+  origin: 'http://localhost:3000', // Specify your frontend's origin
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+}));
 
-    })
-
-);
+// Custom middleware to set headers (ensure this is consistent with the CORS settings)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Same as the origin in CORS config
+  res.header('Access-Control-Allow-Credentials', 'true'); // Allow credentials
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 // Database configuration
 const dbConfig = {
@@ -63,13 +73,20 @@ app.post('/login', async (req, res) => {
         // res.json({ accessToken, refreshToken });
 
         // 2 or send in cookie
-        res.cookie('accessToken', accessToken, { httpOnly: true, secure: false, sameSite: 'None' });
-        res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: false, sameSite: 'None' });
-
-
-        //res.json({ message: 'Logged in successfully' });
-        res.json( { message: 'Logged in successfully -backend' });
-        console.log('try sending tokens as cookie');
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None',
+            maxAge: FIFTEEN_MINUTES,
+          });
+        
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'None',
+          });
+        
+          res.send('Cookies are set');
 
 
 
@@ -149,7 +166,6 @@ async function removeRefreshToken(token) {
     }
 }
 
-// Start the server
 app.listen(4000, () => {
-    console.log('Auth server running on port 4000');
-});
+    console.log(`Server is running in ${process.env.NODE_ENV} mode on port 4000`);
+  });
