@@ -1,59 +1,45 @@
 import React, { useState } from 'react';
-import Cookies from 'js-cookie';
+//import { useCookies } from 'react-cookie';  these are http cookie couldnt be accessed with frontend
+//import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const SecondPage = () => { 
-    //initialize 
-    const [loading, setLoading] = useState(false); // boolean to track loading state
-    const [error, setError] = useState(null); // null or string for error messages
+    //const [refresh_cookies] = useCookies(['refreshTokens']);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate(); 
-
-    /*
-    // ??????Function to check token expiration on the frontend
-    function isTokenExpired(token) {
-    const decoded = JSON.parse(atob(token.split('.')[1]));
-    return decoded.exp < Date.now() / 1000;
-    }
-    const browsers_accessToken = Cookies.get('accessToken');
-    if (isTokenExpired(browsers_accessToken)) {
-    // Handle token refresh or redirect to login
-    } ทีละเรื่อง logout ก่อน แล้วค่อย accesstoken expire
-    */
-
 
     const handleLogout = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        try {
-            let browsers_refreshToken = Cookies.get('refreshToken');
-            if (!browsers_refreshToken) {
-                throw new Error('Refresh token not found');
-            }
-            const response = await axios.delete('http://localhost:4000/logout',  {
-                data: { token: browsers_refreshToken } 
-            });
-            console.log('Login request:', browsers_refreshToken);
-            console.log('Login response:', response.data);
-            if (response.data) {
-                console.log('refreshToken in database is removed');//remove from database
     
-                Cookies.remove('refreshToken'); // remove browser cookie
+        try {
+            //let refresh_cookies = Cookies.get();
+            //console.log('sending token to server', refresh_cookies);
+            const response = await axios.delete('http://localhost:4000/logout', {
+                //data: { refresh_cookies },
+                withCredentials: true
+            });
+    
+            //console.log('Logout request:', refresh_cookies);
+    
+            if (response.status === 204) { // Check for status code 204 No Content
+                console.log('Refresh token in database is removed');
                 console.log('User logged out successfully');
+
                 navigate('/');
             } else {
-                console.log('cannot connect to logout api and remove refreshtoken from database');
+                console.log('Refresh token in the database aint removed ');
             }
         } catch (error) {
+            console.error('Logout error:', error.message);
             setError('Error occurred during logout: ' + error.message);
         } finally {
             setLoading(false);
         }
     };
-    
-
-    //send 
     
     return (
         <div>

@@ -5,6 +5,7 @@ const mysql = require('mysql2/promise');
 const app = express();
 const cors = require('cors');
 const argon2 = require('argon2');
+const cookieParser = require('cookie-parser');
 
 
 const ONE_MINUTE = 60000;
@@ -12,6 +13,7 @@ const FIFTEEN_MINUTES = ONE_MINUTE * 15;
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+app.use(cookieParser());
 
 // CORS configuration
 app.use(cors({
@@ -119,22 +121,27 @@ app.post('/token', async (req, res) => {
     }
 });
 
-// Logout endpoint: Delete refresh token from the database
+// Logout endpoint: Delete refresh token from the database and clear cookies
 app.delete('/logout', async (req, res) => {
-    const { token: refreshToken } = req.body; //const refreshToken query
-    if (!refreshToken) {
-        return res.status(400).send('Refresh token is required');
-    }
-
     try {
+        // Cookies that have not been signed USING COOKIE_PARSER
+        const token = req.cookies.refreshToken;
+        console.log('Cookies: ', token);
+
         // Remove the refresh token from the database
-        await removeRefreshToken(refreshToken);
-        res.sendStatus(204);
+        await removeRefreshToken(token);
+
+        // Clear cookies
+        res.clearCookie('refreshToken');
+        res.clearCookie('accessToken');
+
+        res.status(204).send({ message: 'Browser cookies cleared' });
     } catch (error) {
         console.error('Error removing refresh token:', error);
         res.status(500).send('Internal server error');
     }
 });
+
 
 // Function to generate an access token
 function generateAccessToken(user) {
@@ -157,7 +164,7 @@ async function storeRefreshToken(token) {
 async function removeRefreshToken(token) {
     const connection = await pool.getConnection();
     try {
-        await connection.execute('DELETE FROM refresh_tokens WHERE token = ?', [token]);
+        await connection.execute('DELETE FROM refresh_tokens WHERE  token = ?', [token]);
     } catch (error) {
         console.error('Error removing refresh token:', error);
         throw error; // Optionally, you can rethrow the error to handle it in the calling function
