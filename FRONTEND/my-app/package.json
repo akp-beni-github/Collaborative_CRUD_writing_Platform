@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -15,7 +16,10 @@
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "universal-cookie": "^7.1.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "y-monaco": "^0.1.5",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.15"
   },
   "scripts": {
     "start": "react-scripts start",
