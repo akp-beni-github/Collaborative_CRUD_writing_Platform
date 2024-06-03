@@ -38,8 +38,7 @@ function authenticateToken(req, res, next) {
     console.log(token);
     if (!token) {
         console.log('accessToken expired');
-        res.redirect('http://localhost:3000');
-        return res.sendStatus(401) 
+        return res.sendStatus(404);
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {

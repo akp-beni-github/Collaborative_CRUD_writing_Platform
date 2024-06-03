@@ -91,7 +91,12 @@ const SecondPage = () => {
             
         } catch (error) {
             console.error('Export error:', error.message);
-            setError('Error occurred during export: ' + error.message);
+            if (error.response && error.response.status === 404) {
+                // Redirect to '/'
+                window.location.href = '/';
+            } else {
+                setError('Error occurred during export: ' + error.message);
+            }
         } finally {
             setLoading(false);
         }
