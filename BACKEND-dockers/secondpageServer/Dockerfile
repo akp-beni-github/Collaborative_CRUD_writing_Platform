@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 4001
 
-CMD ["node", "crudapiServer.js"]
+CMD ["node", "secondpageServer.js"]

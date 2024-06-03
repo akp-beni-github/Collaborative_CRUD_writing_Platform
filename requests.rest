@@ -35,3 +35,12 @@ Content-Type: application/json
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoidXNlcjFAZ21haWwuY29tIiwiaWF0IjoxNzE2NjMxMDM0fQ.4khxfuMyhP_UDGxRvZMZRsIFpOKgW0VeqeyqwVFCxPQ" 
 }
+
+
+
+### sending to writing txt file then download on the frontend
+POST http://localhost:4001/write
+Content-Type: application/json
+{
+  "content": "this is written by fs/promises"
+}

@@ -24,9 +24,9 @@ services:
       - "3001:3001"
 
   crudapi-server:
-    build: ./BACKEND-dockers/crudapiServer
+    build: ./BACKEND-dockers/secondpageServer
     restart: always
-    container_name: crudapiserver_container
+    container_name: secondpageServer_container
     ports:
       - "4001:4001"
 

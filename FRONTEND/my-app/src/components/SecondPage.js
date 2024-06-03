@@ -13,6 +13,24 @@ const SecondPage = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate(); 
 
+
+
+    const editorRef = useRef(null);
+    let type;
+
+    function handleEditorDidMount(editor, monaco) {
+        editorRef.current = editor;
+        // Initialize YJS
+        const doc = new Y.Doc(); // a collection of shared objects -> Text
+        // Connect to peers (or start connection) with WebRTC
+        const provider = new WebrtcProvider("test-room", doc); // room1, room2
+        type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
+        // Bind YJS to Monaco 
+        const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
+        console.log(provider.awareness);  
+    } 
+
+
     const handleLogout = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -40,27 +58,57 @@ const SecondPage = () => {
         }
     };
 
-    const editorRef = useRef(null);
-    let type;
+    const handleExport = async () => {
+        setLoading(true);
+        setError(null);
 
-    function handleEditorDidMount(editor, monaco) {
-        editorRef.current = editor;
-        // Initialize YJS
-        const doc = new Y.Doc(); // a collection of shared objects -> Text
-        // Connect to peers (or start connection) with WebRTC
-        const provider = new WebrtcProvider("test-room", doc); // room1, room2
-        type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
-        // Bind YJS to Monaco 
-        const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
-        console.log(provider.awareness);  
-    }  
+        try {
+        let content = type.toString();
+        console.log(content);
+        if (content===undefined){ content = " ";}
+        const response = await axios.post('http://localhost:4001/export', { content }, {
+            responseType: 'blob', withCredentials: true // Ensure the response is treated as a blob
+        });
+
+        // Create a blob from the response data
+        const blob = new Blob([response.data], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+
+        // Create a link element and trigger a download
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'download.txt'); // Specify the desired file name
+        document.body.appendChild(link);
+        link.click();
+
+        // Clean up the URL object
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+
+        window.location.reload();
+            
+
+            
+        } catch (error) {
+            console.error('Export error:', error.message);
+            setError('Error occurred during export: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+ 
 
 
 
             
     return (
         <div>
-            <h1>COLLAB WRITING PLATFORM</h1>
+            <h1>COLLABORATIVE WRITING PLATFORM</h1>
+
+            <button onClick={handleExport} disabled={loading}>
+                {loading ? 'Exporting...' : 'Export'}
+            </button>
 
         <Editor
           height="70vh"
@@ -71,8 +119,9 @@ const SecondPage = () => {
 
         <button onClick={handleLogout} disabled={loading}>
                 {loading ? 'Logging out...' : 'Logout'}
-            </button>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+        </button>
+
+        {error && <div style={{ color: 'red' }}>{error}</div>}
 
         </div>
     );

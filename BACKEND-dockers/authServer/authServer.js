@@ -88,7 +88,7 @@ app.post('/login', async (req, res) => {
             sameSite: 'None',
           });
         
-          res.send('Cookies are set');
+        res.send('Cookies are set');
 
 
 
@@ -171,6 +171,10 @@ async function removeRefreshToken(token) {
     } finally {
         connection.release();
     }
+}
+
+async function isRefreshTokenValid(token){
+    
 }
 
 app.listen(4000, () => {
