@@ -36,11 +36,16 @@ function authenticateToken(req, res, next) {  //recieve token as a header from f
 function authenticateToken(req, res, next) {
     const token = req.cookies['accessToken']; 
     console.log(token);
-    if (!token) return res.sendStatus(401);
+    if (!token) {
+        console.log('accessToken expired');
+        res.redirect('http://localhost:3000');
+        return res.sendStatus(401) 
+    }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) return res.sendStatus(403);
         req.user = user;
+        console.log('valid accessToken');
         next();
     });
 }
