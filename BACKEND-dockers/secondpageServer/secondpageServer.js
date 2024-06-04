@@ -38,7 +38,7 @@ function authenticateToken(req, res, next) {
     console.log(token);
     if (!token) {
         console.log('accessToken expired');
-        return res.sendStatus(404);
+        res.sendStatus(404);
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
@@ -51,7 +51,7 @@ function authenticateToken(req, res, next) {
 
 module.exports = authenticateToken; // Exporting the middleware function
 
-app.post('/export', authenticateToken,  async (req, res) => {
+app.post('/export', authenticateToken,   async (req, res) => {
     const { content } = req.body;
 
     try {
@@ -76,6 +76,8 @@ app.post('/export', authenticateToken,  async (req, res) => {
         // Create a read stream from the file and pipe it to the response
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(res);
+        console.log('sending')
+        console.log(res);
 
     } catch (error) {
         console.error('Error writing to file:', error);

@@ -8,6 +8,7 @@ const Auth = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const [signupSuccess, setSignupSuccess] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -22,7 +23,7 @@ const Auth = () => {
             console.log('Signup response:', response.data);
             if (response.data) {
                 console.log('User signed up successfully');
-                navigate('/collab-writing-platform');
+                setSignupSuccess(true);
             } else {
                 setError(response.data || 'Signup failed');
             }
@@ -67,6 +68,7 @@ const Auth = () => {
         <div>
             <h1>Authentication</h1>
             {error && <p style={{ color: 'red' }}>{error}</p>}
+            {signupSuccess && <p style={{ color: 'green' }}>Signup successful!</p>} {/* Render signup success message */}
             {loading ? (
                 <p>Loading...</p>
             ) : (

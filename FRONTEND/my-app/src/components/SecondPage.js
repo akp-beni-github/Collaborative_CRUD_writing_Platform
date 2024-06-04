@@ -7,6 +7,8 @@ import * as Y from "yjs"
 import { WebrtcProvider } from "y-webrtc"
 import { MonacoBinding } from "y-monaco"
 
+import randomString from '@smakss/random-string';
+
 const SecondPage = () => { 
     
     const [loading, setLoading] = useState(false);
@@ -17,16 +19,20 @@ const SecondPage = () => {
 
     const editorRef = useRef(null);
     let type;
+    let provider;
+    let doc;
+    let binding; 
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
         // Initialize YJS
-        const doc = new Y.Doc(); // a collection of shared objects -> Text
+        doc = new Y.Doc(); // a collection of shared objects -> Text
         // Connect to peers (or start connection) with WebRTC
-        const provider = new WebrtcProvider("test-room", doc); // room1, room2
+        //const randomRoomName = randomString();
+        provider = new WebrtcProvider("one-room", doc); // room1, room2
         type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
         // Bind YJS to Monaco 
-        const binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
+        binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
         console.log(provider.awareness);  
     } 
 
@@ -46,6 +52,9 @@ const SecondPage = () => {
                 console.log('Refresh token in database is removed');
                 console.log('User logged out successfully');
 
+
+                doc.destroy()
+                provider.disconnect();
                 navigate('/');
             } else {
                 console.log('Refresh token in the database aint removed ');
@@ -70,6 +79,8 @@ const SecondPage = () => {
             responseType: 'blob', withCredentials: true // Ensure the response is treated as a blob
         });
 
+        console.log(response.data);
+
         // Create a blob from the response data
         const blob = new Blob([response.data], { type: 'text/plain' });
         const url = window.URL.createObjectURL(blob);
@@ -84,7 +95,7 @@ const SecondPage = () => {
         // Clean up the URL object
         window.URL.revokeObjectURL(url);
         document.body.removeChild(link);
-
+        type.delete(0, type.length);
         window.location.reload();
             
 
@@ -92,7 +103,10 @@ const SecondPage = () => {
         } catch (error) {
             console.error('Export error:', error.message);
             if (error.response && error.response.status === 404) {
-                // Redirect to '/'
+                
+
+                doc.destroy()
+                provider.disconnect();
                 window.location.href = '/';
             } else {
                 setError('Error occurred during export: ' + error.message);

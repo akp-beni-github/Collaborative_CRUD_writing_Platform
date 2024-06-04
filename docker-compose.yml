@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   frontend:
     build: ./FRONTEND/my-app
     restart: always
@@ -23,7 +22,7 @@ services:
     ports:
       - "3001:3001"
 
-  crudapi-server:
+  second-server:
     build: ./BACKEND-dockers/secondpageServer
     restart: always
     container_name: secondpageServer_container
@@ -31,7 +30,8 @@ services:
       - "4001:4001"
 
   mysql:
-    image: mysql:8.0
+    build:
+      context: ./BACKEND-dockers/mysql-custom
     restart: always
     container_name: mysql_container
     environment:
