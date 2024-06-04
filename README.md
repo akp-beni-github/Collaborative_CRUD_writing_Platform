@@ -1,1 +1,0 @@
-# Collaborative_CRUD_writing_Platform
