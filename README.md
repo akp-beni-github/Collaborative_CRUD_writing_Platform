@@ -5,7 +5,7 @@
 
 📌 recieving JWT tokens from login
 
-<img width="600" alt="Screenshot 2567-06-04 at 15 01 04" src="https://github.com/akp-beni-github/Collaborative_writing_Platform/assets/162615013/2d049965-42d4-4544-a7de-ec5555212aec">
+<img width="1440" alt="Screenshot 2567-06-04 at 14 58 46" src="https://github.com/akp-beni-github/Collaborative_writing_Platform/assets/162615013/5063ba96-c2a5-4964-b5e7-1bb1ccd6d7e1">
 
 📌 using WebRTC and Yjs to connect text editor of every users
 
