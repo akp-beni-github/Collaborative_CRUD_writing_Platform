@@ -14,3 +14,5 @@
 📌 using accessToken(15 minute) to protect export api. if it's expired then request for new token authenticate using refreshToken
 
 <img width="600" alt="Screenshot 2567-06-04 at 16 27 27" src="https://github.com/akp-beni-github/Collaborative_writing_Platform/assets/162615013/4d3c2961-18f7-4620-bc6a-413ed72179ac">
+
+📌rewrite textfile on the server and export as a text file
