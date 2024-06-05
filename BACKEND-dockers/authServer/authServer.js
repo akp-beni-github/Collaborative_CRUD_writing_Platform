@@ -135,7 +135,7 @@ app.post('/token', async (req, res) => {
                 maxAge: FIFTEEN_MINUTES,
             });
             res.send('Cookies are set'); // Sending this might be redundant after res.json
-            return; // Use return here to prevent further execution
+            //return; // Use return here to prevent further execution
         });
     } catch (error) {
         console.error('Error processing token:', error);
