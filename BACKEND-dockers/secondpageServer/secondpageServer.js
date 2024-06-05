@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const fs = require('fs'); 
 const fsPromises = fs.promises; 
 const cookieParser = require('cookie-parser');
+const axios = require('axios');
 
 app.use(cookieParser());
 
@@ -21,24 +22,61 @@ app.use(cors({
 app.use(bodyParser.json());
 
 
-
 function authenticateToken(req, res, next) {
-    const token = req.cookies['accessToken']; 
-    console.log(token);
-    if (!token) {
-        console.log('accessToken expired');
-        return res.sendStatus(404);
-    }
+    const Atoken = req.cookies['accessToken']; 
+    const Rtoken = req.cookies['refreshToken'];
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        console.log('valid accessToken');
-        next();
-    });
+    console.log('refresh /export authen',Rtoken);
+    console.log('access /export /authen',Atoken);
+
+    if (!Atoken) {
+        console.log('Access token expired');
+
+        // Send POST request to /token with payload of Rtoken
+        if (!Rtoken) {
+            return res.status(401).send('Refresh token is missing');
+        }
+
+        axios.post('http://localhost:4000/token', { token: Rtoken })
+            .then(response => {
+                const newAccessToken = response.data.accessToken;
+                console.log('new access token get from /token',newAccessToken)
+
+                if (newAccessToken) {
+                    // Set the new access token in the cookies
+                    res.cookie('accessToken', newAccessToken, {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'None',
+                        maxAge: FIFTEEN_MINUTES,
+                    });
+
+                    // Proceed with the original request
+                    next();
+                } else {
+                    res.status(401).send('Unable to refresh access token');
+                }
+            })
+            .catch(error => {
+                console.error('Error refreshing token:', error);
+                res.status(401).send('Refresh token expired or invalid');
+            });
+    } else {
+        // If access token is present, verify it and proceed
+        // Assuming you have a function to verify token
+        jwt.verify(Atoken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+            if (err) {
+                console.log('Access token invalid');
+                return res.status(403).send('Invalid access token');
+            }
+            req.user = user; // Attach the user to the request
+            next(); // Proceed with the original request
+        });
+    }
 }
 
-module.exports = authenticateToken; // Exporting the middleware function
+module.exports = authenticateToken;
+
 
 app.post('/export', authenticateToken,   async (req, res) => {
     const { content } = req.body;

@@ -15,11 +15,11 @@ const FIFTEEN_MINUTES = ONE_MINUTE * 15;
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS configuration
+
 app.use(cors({
-  origin: 'http://localhost:3000', // Specify your frontend's origin
-  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-}));
+    origin: 'http://localhost:3000', // Specify your frontend's origin
+    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+  }));
 
 /*
 // Custom middleware to set headers (ensure this is consistent with the CORS settings)
@@ -104,8 +104,8 @@ app.post('/login', async (req, res) => {
 // response back with accessToken, everytime accessToken cookie expired
 app.post('/token', async (req, res) => {
     try {
-        const token = req.cookies.refreshToken;
-        console.log('refreshToken: ', token);
+        const token = req.body.token;
+        console.log('refreshToken /token : ', token);
         if (token===undefined) { 
             console.log('send 401');
             return res.sendStatus(401); 
@@ -123,9 +123,11 @@ app.post('/token', async (req, res) => {
                 console.error('Error verifying refresh token:', err);
                 return res.sendStatus(403); // Use return here
             }
-            const accessToken = generateAccessToken({ name: user.name });
 
-            console.log('newaccessToken', accessToken);
+        const newaccessToken = generateAccessToken({ name: user.name });
+        console.log('newaccessToken', newaccessToken);
+        res.json({ accessToken: newaccessToken });
+            /*
 
             //res.json(accessToken);
             res.cookie('accessToken', accessToken, {
@@ -135,9 +137,10 @@ app.post('/token', async (req, res) => {
                 maxAge: FIFTEEN_MINUTES,
             });
             res.send('Cookies are set'); // Sending this might be redundant after res.json
-            return; // Use return here to prevent further execution
+            return; // Use return here to prevent further execution*/
         });
-    } catch (error) {
+    
+    }   catch (error) {
         console.error('Error processing token:', error);
         res.status(500).send('Internal server error');
     }

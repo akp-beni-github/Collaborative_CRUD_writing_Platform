@@ -90,9 +90,6 @@ const SecondPage = () => {
     let url;
     
 
-
-   
-
     const handleExport = async () => {
         setLoading(true);
         setError(null);
@@ -118,45 +115,14 @@ const SecondPage = () => {
             document.body.appendChild(link);
             link.click();
     
-        } catch (error) {
+        } catch (error) {//back from /token unauthorize->logout
             console.error('Export error:', error.message);
-            if (error.response) {
-                if (error.response.status === 404) {
-                    // Access token expired
-                    try {
-                        // Attempt to get a new token
-                        const response2 = await axios.post('http://localhost:4000/token', null, {
-                            withCredentials: true
-                        });
-                        console.log('came back from /token');
-                        //return handleExport();
-
-                    } catch (tokenError) {
-                        // Handle token retrieval error
-                        console.error('Token retrieval error:', tokenError.message); //401 from /token
-                        console.log('no refresh to token! going log out!')
-                            if (url) {
-                                window.URL.revokeObjectURL(url);
-                            }
-                            if (link && link.parentNode) {
-                                link.parentNode.removeChild(link);
-                            }
-                            type.delete(0, type.length);
-                            doc.destroy()
-                            provider.disconnect();
-                            navigate('/');
-
-
-                    }
-                } else if (error.response.status === 401) {
-                    // Unauthorized, handle accordingly
-                } else {
-                    setError('Error occurred during export: ' + error.message);
-                }
-            } else {
-                setError('Error occurred during export: ' + error.message);
-            }
-        } finally {
+            type.delete(0, type.length);
+            doc.destroy()
+            provider.disconnect();
+            navigate('/');
+            
+        } finally {//export successfully-> clenup and refresh
             setLoading(false);
     
             if (url) {
@@ -168,7 +134,7 @@ const SecondPage = () => {
             type.delete(0, type.length);
             doc.destroy()
             provider.disconnect();
-            // Consider if reloading the page is necessary
+            
             window.location.reload();
         }
     };

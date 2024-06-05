@@ -7,6 +7,8 @@ services:
     container_name: frontend_container
     ports:
       - "3000:3000"
+    networks:
+      - my-network
 
   auth-server:
     build: ./BACKEND-dockers/authServer
@@ -14,6 +16,8 @@ services:
     container_name: authserver_container
     ports:
       - "4000:4000"
+    networks:
+      - my-network
 
   root-server:
     build: ./BACKEND-dockers/rootServer
@@ -21,6 +25,8 @@ services:
     container_name: rootserver_container
     ports:
       - "3001:3001"
+    networks:
+      - my-network
 
   second-server:
     build: ./BACKEND-dockers/secondpageServer
@@ -28,6 +34,8 @@ services:
     container_name: secondpageServer_container
     ports:
       - "4001:4001"
+    networks:
+      - my-network
 
   mysql:
     build:
@@ -43,6 +51,12 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - my-network
 
 volumes:
   mysql_data:
+
+networks:
+  my-network:
+    driver: bridge
