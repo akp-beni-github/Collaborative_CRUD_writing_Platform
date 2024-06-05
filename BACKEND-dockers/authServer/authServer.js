@@ -113,7 +113,18 @@ app.post('/token', async (req, res) => {
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
             if (err) return res.sendStatus(403);
             const accessToken = generateAccessToken({ name: user.name });
-            res.json({ accessToken });
+
+            console.log('newaccessToken', accessToken);
+
+            //res.json(accessToken);
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'None',
+                maxAge: FIFTEEN_MINUTES,
+            });
+            res.send('Cookies are set'); // Sending this might be redundant after res.json
+            return; // Use return here to prevent further execution
         });
     } catch (error) {
         console.error('Error processing token:', error);

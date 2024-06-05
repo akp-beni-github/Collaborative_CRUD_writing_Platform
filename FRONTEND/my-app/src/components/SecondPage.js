@@ -33,8 +33,10 @@ const SecondPage = () => {
         type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
         // Bind YJS to Monaco 
         binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
+    
         console.log(provider.awareness);  
-    } 
+    }
+    
 
 
     const handleLogout = async (e) => {
@@ -102,12 +104,39 @@ const SecondPage = () => {
             
         } catch (error) {
             console.error('Export error:', error.message);
-            if (error.response && error.response.status === 404) {
-                
+            if (error.response) {
+                if (error.response.status === 404) {
+                    // Access token expired
+                    try {
+                        // Attempt to get a new token
+                        const response2 = await axios.post('http://localhost:4000/token', null, {
+                            withCredentials: true
+                        });
+                        console.log('came back from /token');
+                        //return handleExport();
 
-                doc.destroy()
-                provider.disconnect();
-                window.location.href = '/';
+                    } catch (tokenError) {
+                        // Handle token retrieval error
+                        console.error('Token retrieval error:', tokenError.message); //401 from /token
+                        console.log('no refresh to token! going log out!')
+                            if (url) {
+                                window.URL.revokeObjectURL(url);
+                            }
+                            if (link && link.parentNode) {
+                                link.parentNode.removeChild(link);
+                            }
+                            type.delete(0, type.length);
+                            doc.destroy()
+                            provider.disconnect();
+                            navigate('/');
+
+
+                    }
+                } else if (error.response.status === 401) {
+                    // Unauthorized, handle accordingly
+                } else {
+                    setError('Error occurred during export: ' + error.message);
+                }
             } else {
                 setError('Error occurred during export: ' + error.message);
             }
