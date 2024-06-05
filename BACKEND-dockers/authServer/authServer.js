@@ -21,6 +21,7 @@ app.use(cors({
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
 
+/*
 // Custom middleware to set headers (ensure this is consistent with the CORS settings)
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Same as the origin in CORS config
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
+*/
 
 // Database configuration
 const dbConfig = {
@@ -101,25 +103,46 @@ app.post('/login', async (req, res) => {
 
 // response back with accessToken, everytime accessToken cookie expired
 app.post('/token', async (req, res) => {
-    const { token: refreshToken } = req.body;
-    if (!refreshToken) return res.sendStatus(401);
-
     try {
+        const token = req.cookies.refreshToken;
+        console.log('refreshToken: ', token);
+        if (token===undefined) { 
+            console.log('send 401');
+            return res.sendStatus(401); 
+        }
+
         // Check if the refresh token exists in the database
-        const isTokenValid = await isRefreshTokenValid(refreshToken);
-        if (!isTokenValid) return res.sendStatus(403);
+        await isRefreshTokenValid(token);
+
+        console.log('valid refreshtoken')
+        console.log('generating access token')
 
         // Verify the refresh token
-        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-            if (err) return res.sendStatus(403);
+        jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+            if (err) {
+                console.error('Error verifying refresh token:', err);
+                return res.sendStatus(403); // Use return here
+            }
             const accessToken = generateAccessToken({ name: user.name });
-            res.json({ accessToken });
+
+            console.log('newaccessToken', accessToken);
+
+            //res.json(accessToken);
+            res.cookie('accessToken', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'None',
+                maxAge: FIFTEEN_MINUTES,
+            });
+            res.send('Cookies are set'); // Sending this might be redundant after res.json
+            return; // Use return here to prevent further execution
         });
     } catch (error) {
         console.error('Error processing token:', error);
         res.status(500).send('Internal server error');
     }
 });
+
 
 // Logout endpoint: Delete refresh token from the database and clear cookies
 app.delete('/logout', async (req, res) => {
@@ -174,7 +197,14 @@ async function removeRefreshToken(token) {
 }
 
 async function isRefreshTokenValid(token){
-    
+    const connection = await pool.getConnection();
+    try {
+        await connection.execute('SELECT * FROM refresh_tokens WHERE token = ?', [token]);
+    } catch (error) {
+        console.error('Error checking refresh token:', error);
+    } finally {
+        connection.release();
+    }
 }
 
 app.listen(4000, () => {

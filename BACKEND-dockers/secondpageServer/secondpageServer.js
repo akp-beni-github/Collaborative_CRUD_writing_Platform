@@ -20,25 +20,14 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-/* Middleware to authenticate token
-function authenticateToken(req, res, next) {  //recieve token as a header from frontend browser 
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.sendStatus(401);
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-}
-*/
+
 function authenticateToken(req, res, next) {
     const token = req.cookies['accessToken']; 
     console.log(token);
     if (!token) {
         console.log('accessToken expired');
-        res.sendStatus(404);
+        return res.sendStatus(404);
     }
 
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
@@ -56,7 +45,7 @@ app.post('/export', authenticateToken,   async (req, res) => {
 
     try {
         const filePath = './textfile.txt';
-        const fileName = 'download.txt';
+        //const fileName = 'download.txt';
 
         await fs.writeFile(filePath, content, 'utf8', (err) => {
             if (err) {
@@ -70,14 +59,14 @@ app.post('/export', authenticateToken,   async (req, res) => {
         
 
         // Set the appropriate headers to force a download
-        res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
-        res.setHeader('Content-type', 'text/plain'); // Adjust the content type according to your file type
+        //res.setHeader('Content-disposition', 'attachment; filename=' + fileName);
+        //res.setHeader('Content-type', 'text/plain'); // Adjust the content type according to your file type
 
         // Create a read stream from the file and pipe it to the response
         const fileStream = fs.createReadStream(filePath);
         fileStream.pipe(res);
-        console.log('sending')
-        console.log(res);
+        //console.log('sending')
+        //console.log(res);
 
     } catch (error) {
         console.error('Error writing to file:', error);

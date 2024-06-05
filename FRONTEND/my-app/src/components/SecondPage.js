@@ -22,19 +22,27 @@ const SecondPage = () => {
     let provider;
     let doc;
     let binding; 
+    let content ="";
+    
 
-    function handleEditorDidMount(editor, monaco) {
+    async function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
+    
         // Initialize YJS
         doc = new Y.Doc(); // a collection of shared objects -> Text
+    
         // Connect to peers (or start connection) with WebRTC
-        //const randomRoomName = randomString();
         provider = new WebrtcProvider("one-room", doc); // room1, room2
+    
+        // Get the YJS text type
         type = doc.getText("monaco"); // doc { "monaco": "what our IDE is showing" }
+    
         // Bind YJS to Monaco 
         binding = new MonacoBinding(type, editorRef.current.getModel(), new Set([editorRef.current]), provider.awareness);
+    
         console.log(provider.awareness);  
-    } 
+    }
+    
 
 
     const handleLogout = async (e) => {
@@ -52,69 +60,120 @@ const SecondPage = () => {
                 console.log('Refresh token in database is removed');
                 console.log('User logged out successfully');
 
-
-                doc.destroy()
-                provider.disconnect();
-                navigate('/');
             } else {
                 console.log('Refresh token in the database aint removed ');
             }
         } catch (error) {
             console.error('Logout error:', error.message);
             setError('Error occurred during logout: ' + error.message);
+            
+            
         } finally {
             setLoading(false);
+
+            if (url) {
+                window.URL.revokeObjectURL(url);
+            }
+            if (link && link.parentNode) {
+                link.parentNode.removeChild(link);
+            }
+
+            doc.destroy()
+            provider.disconnect();
+            navigate('/');
         }
     };
+
+
+    let link;
+    let blob;
+    let url;
+    
+
+
+   
 
     const handleExport = async () => {
         setLoading(true);
         setError(null);
-
+    
         try {
-        let content = type.toString();
-        console.log(content);
-        if (content===undefined){ content = " ";}
-        const response = await axios.post('http://localhost:4001/export', { content }, {
-            responseType: 'blob', withCredentials: true // Ensure the response is treated as a blob
-        });
-
-        console.log(response.data);
-
-        // Create a blob from the response data
-        const blob = new Blob([response.data], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-
-        // Create a link element and trigger a download
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'download.txt'); // Specify the desired file name
-        document.body.appendChild(link);
-        link.click();
-
-        // Clean up the URL object
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-        type.delete(0, type.length);
-        window.location.reload();
+            content = await type.toString();
+            console.log(content);
             
-
-            
+            if (!content) { // Check if content is undefined, null, or empty
+                content = " ";
+            }
+    
+            const response = await axios.post('http://localhost:4001/export', { content }, {
+                responseType: 'blob',
+                withCredentials: true
+            });
+    
+            blob = new Blob([response.data], { type: 'text/plain' });
+            url = window.URL.createObjectURL(blob);
+            link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'download.txt');
+            document.body.appendChild(link);
+            link.click();
+    
         } catch (error) {
             console.error('Export error:', error.message);
-            if (error.response && error.response.status === 404) {
-                
+            if (error.response) {
+                if (error.response.status === 404) {
+                    // Access token expired
+                    try {
+                        // Attempt to get a new token
+                        const response2 = await axios.post('http://localhost:4000/token', null, {
+                            withCredentials: true
+                        });
+                        console.log('came back from /token');
+                        //return handleExport();
 
-                doc.destroy()
-                provider.disconnect();
-                window.location.href = '/';
+                    } catch (tokenError) {
+                        // Handle token retrieval error
+                        console.error('Token retrieval error:', tokenError.message); //401 from /token
+                        console.log('no refresh to token! going log out!')
+                            if (url) {
+                                window.URL.revokeObjectURL(url);
+                            }
+                            if (link && link.parentNode) {
+                                link.parentNode.removeChild(link);
+                            }
+                            type.delete(0, type.length);
+                            doc.destroy()
+                            provider.disconnect();
+                            navigate('/');
+
+
+                    }
+                } else if (error.response.status === 401) {
+                    // Unauthorized, handle accordingly
+                } else {
+                    setError('Error occurred during export: ' + error.message);
+                }
             } else {
                 setError('Error occurred during export: ' + error.message);
             }
         } finally {
             setLoading(false);
+    
+            if (url) {
+                window.URL.revokeObjectURL(url);
+            }
+            if (link && link.parentNode) {
+                link.parentNode.removeChild(link);
+            }
+            type.delete(0, type.length);
+            doc.destroy()
+            provider.disconnect();
+            // Consider if reloading the page is necessary
+            window.location.reload();
         }
     };
+    
+    
 
  
 
